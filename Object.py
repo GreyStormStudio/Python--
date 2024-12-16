@@ -1,5 +1,6 @@
+from pygame import sprite, image
+
 import config
-from pygame import sprite, Surface, image
 
 
 class Unit(sprite.Sprite):
