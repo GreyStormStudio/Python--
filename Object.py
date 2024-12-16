@@ -1,4 +1,6 @@
-from pygame import sprite, image
+from pygame import sprite, image, draw
+
+# from random import randint
 
 import config
 
@@ -14,27 +16,46 @@ class Unit(sprite.Sprite):
     pass
 
 
-class Player(Unit):
-    def __init__(self, image_name):
-        super().__init__(image_name)
-        self.health = 100
-        self.degree = 0
-        self.pos = [0, 0]
+class PipelineNode:
+    def __init__(self, pos):
+        self.pos = pos
+        self.radius = 5
+        # self.color = (randint(0, 255), randint(0, 255), randint(0, 255))
+        self.color = (0, 255, 0)
 
-    def move(self):
-        pass
-
-    pass
+    def draw(self, surface):
+        draw.circle(surface, self.color, self.pos, self.radius)
 
 
-class Enemy(Unit):
-    def __init__(self, image_name):
-        super().__init__(image_name)
-        self.health = 100
-        self.degree = 0
-        self.pos = [0, 0]
+class Pipeline:
+    def __init__(self):
+        self.nodes = []
+        self.preview_node = None
 
-    def move(self):
-        pass
+    def add_node(self, node):
+        self.nodes.append(node)
+        self.preview_node = None
 
-    pass
+    def set_preview_node(self, pos):
+        self.preview_node = PipelineNode(pos)
+
+    def draw(self, surface):
+        if len(self.nodes) > 1:
+            for i in range(len(self.nodes) - 1):
+                draw.line(
+                    surface,
+                    self.nodes[i].color,
+                    self.nodes[i].pos,
+                    self.nodes[i + 1].pos,
+                    self.nodes[i].radius * 2,
+                )
+        if self.preview_node:
+            self.preview_node.draw(surface)
+            if len(self.nodes) > 0:
+                draw.line(
+                    surface,
+                    (255, 255, 255),
+                    self.nodes[-1].pos,
+                    self.preview_node.pos,
+                    1,
+                )  # 虚影线
