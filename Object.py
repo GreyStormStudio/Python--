@@ -52,7 +52,7 @@ class Pipeline:
         if self.preview_node:
             self.preview_node.draw(surface)
             if len(self.nodes) > 0:
-                draw.line(
+                draw.aaline(
                     surface,
                     (255, 255, 255),
                     self.nodes[-1].pos,
