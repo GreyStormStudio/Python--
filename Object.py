@@ -1,61 +1,36 @@
-from pygame import sprite, image, draw
+from pygame import sprite, image, draw, Surface, transform
 
 # from random import randint
 
 import config
 
 
-class Unit(sprite.Sprite):
-    def __init__(self, image_name):
-        super().__init__()
-        self.image = image.load(image_name)
-        self.rect = self.image.get_rect(
-            center=(config.screen_width // 2, config.screen_height // 2)
-        )
-
-    pass
-
-
-class PipelineNode:
+class Tower(sprite.Sprite):
     def __init__(self, pos):
-        self.pos = pos
-        self.radius = 5
-        # self.color = (randint(0, 255), randint(0, 255), randint(0, 255))
-        self.color = (0, 255, 0)
+        super().__init__()
+        # self.image = image(config.tower_img)
+        self.original_image = Surface((200, 200))
+        self.original_image.fill((0, 255, 0))
+        self.image = self.original_image
+        self.rect = self.image.get_rect(center=pos)
+        self.range = 100
+        self.angle = 0  # 初始角度
 
-    def draw(self, surface):
-        draw.circle(surface, self.color, self.pos, self.radius)
+    def update(self):
+        self.angle = (self.angle + 1) % 360
+        self.image = transform.rotate(self.original_image, self.angle)
+        self.rect = self.image.get_rect(center=self.rect.center)
 
 
-class Pipeline:
+class Enemy(sprite.Sprite):
     def __init__(self):
-        self.nodes = []
-        self.preview_node = None
+        super().__init__()
+        self.image = Surface((20, 20))
+        self.image.fill((255, 0, 0))
+        self.rect = self.image.get_rect(center=(0, config.screen_height // 2))
+        self.speed = 1
 
-    def add_node(self, node):
-        self.nodes.append(node)
-        self.preview_node = None
-
-    def set_preview_node(self, pos):
-        self.preview_node = PipelineNode(pos)
-
-    def draw(self, surface):
-        if len(self.nodes) > 1:
-            for i in range(len(self.nodes) - 1):
-                draw.line(
-                    surface,
-                    self.nodes[i].color,
-                    self.nodes[i].pos,
-                    self.nodes[i + 1].pos,
-                    self.nodes[i].radius * 2,
-                )
-        if self.preview_node:
-            self.preview_node.draw(surface)
-            if len(self.nodes) > 0:
-                draw.aaline(
-                    surface,
-                    (255, 255, 255),
-                    self.nodes[-1].pos,
-                    self.preview_node.pos,
-                    1,
-                )  # 虚影线
+    def update(self):
+        self.rect.x += self.speed
+        if self.rect.x > config.screen_width:
+            self.kill()  # 敌人离开屏幕后销毁
